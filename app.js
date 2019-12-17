@@ -1,10 +1,13 @@
 const express = require('express');
 const comments = require("./routes/comments");
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 var cors = require('cors');
 
 const port = 3000;
 const app = express();
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 const connection ='mongodb+srv://Admin:Admin@cluster0-ikekk.mongodb.net/test?retryWrites=true&w=majority'
 
 mongoose.connect(connection, {
