@@ -4,7 +4,15 @@ exports.getComments = ({ params }, res) => {
     Comments.find({ movieId: params.movieId })
         .then(comments => {
             if (!comments && !comments.length) throw new Error('Something went wrong!');
-            res.send(comments);
+            var response = comments.map(({ _id: id, movieId, text, author, createdAt, updatedAt }) => ({
+                id,
+                movieId,
+                text,
+                author,
+                createdAt,
+                updatedAt
+            }));
+            res.send(response);
         })
         .catch(err => {
             res.send(err.message);
