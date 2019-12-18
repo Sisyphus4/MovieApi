@@ -1,13 +1,11 @@
-const { uuid } = require('uuidv4');
-
 const Comments = require("../models/comments");
 
 exports.getComments = ({ params }, res) => {
     Comments.find({ movieId: params.movieId })
-        .then(comment => {
-            if (comment.length === 0) throw new Error('Something went wrong!');
+        .then(comments => {
+            if (!comments && !comments.length) throw new Error('Something went wrong!');
             res.json({
-                comment,
+                comments,
             });
         })
         .catch(err => {
@@ -18,9 +16,7 @@ exports.getComments = ({ params }, res) => {
 exports.postComment = ({ params, body }, res) => {
     const { text, author } = body;
     const movieId = params.id;
-    const id = uuid();
-    const date = new Date;
-    const newComment = new Comments({ movieId, id, text, author, date });
+    const newComment = new Comments({ movieId, text, author });
     newComment
         .save()
         .then(createdComment => res.json(createdComment))
@@ -29,7 +25,7 @@ exports.postComment = ({ params, body }, res) => {
 };
 
 exports.updateComment = ({ body }, res) => {
-    Comments.updateOne({ id: body.id }, { text: body.text })
+    Comments.updateOne({ _id: body.id }, { text: body.text })
         .then(() => {
             res.send("Updated");
         })
@@ -38,8 +34,8 @@ exports.updateComment = ({ body }, res) => {
         });
 };
 
-exports.deleteComment = ({ body }, res) => {
-    Comments.deleteOne({ id: body.id })
+exports.deleteComment = ({ params }, res) => {
+    Comments.deleteOne({ _id: params.id })
         .then(() => {
             res.send("Deleted");
         })

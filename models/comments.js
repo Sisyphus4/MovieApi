@@ -3,7 +3,6 @@ let Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
   movieId: Number,
-  id: String,
   text: {
     type: String,
     required: [
@@ -11,7 +10,12 @@ const CommentSchema = new Schema({
     ],
   },
   author: String,
-  date: Date
+},
+{
+  timestamps: {
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  }
 });
 
 
