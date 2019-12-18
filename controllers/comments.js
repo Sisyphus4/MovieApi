@@ -43,7 +43,7 @@ exports.updateComment = ({ body }, res) => {
 exports.deleteComment = ({ params }, res) => {
     Comments.deleteOne({ _id: params.id })
         .then(() => {
-            res.send("Deleted");
+            res.json({message:'deleted'});
         })
         .catch((err) => {
             res.send(err.message);
