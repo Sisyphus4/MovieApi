@@ -4,9 +4,7 @@ exports.getComments = ({ params }, res) => {
     Comments.find({ movieId: params.movieId })
         .then(comments => {
             if (!comments && !comments.length) throw new Error('Something went wrong!');
-            res.json({
-                comments,
-            });
+            res.send(comments);
         })
         .catch(err => {
             res.send(err.message);
