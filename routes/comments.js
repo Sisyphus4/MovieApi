@@ -7,7 +7,7 @@ router.get('/:movieId/getComments', comments.getComments);
 
 router.post('/:id/postComment', comments.postComment);
 
-router.put('/:id/updateComment', comments.updateComment);
+router.put('/updateComment', comments.updateComment);
 
 router.delete('/deleteComment/:id', comments.deleteComment);
 

@@ -1,5 +1,6 @@
 const express = require('express');
 const comments = require("./routes/comments");
+const ratings = require("./routes/ratings");
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 var cors = require('cors');
@@ -22,6 +23,7 @@ db.once('open', function() {
 app.use(cors());
 
 app.use('/api/comments', comments);
+app.use('/api/ratings', ratings);
 
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

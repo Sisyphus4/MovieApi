@@ -25,7 +25,12 @@ exports.postComment = ({ params, body }, res) => {
     const newComment = new Comments({ movieId, text, author });
     newComment
         .save()
-        .then(createdComment => res.json(createdComment))
+        .then(createdComment => {
+            str = JSON.stringify(createdComment);
+            str = str.replace("\"_id\":", "\"id\":");
+            json = JSON.parse(str);
+            res.json(json);
+        })
         .catch(({ message }) => res.status(404).json({ message }));
 
 };
@@ -33,7 +38,13 @@ exports.postComment = ({ params, body }, res) => {
 exports.updateComment = ({ body }, res) => {
     Comments.updateOne({ _id: body.id }, { text: body.text })
         .then(() => {
-            res.send("Updated");
+            Comments.findOne({ _id: body.id })
+                .then(comment => {
+                    str = JSON.stringify(comment);
+                    str = str.replace("\"_id\":", "\"id\":");
+                    json = JSON.parse(str);
+                    res.json(json);
+                });
         })
         .catch((err) => {
             res.send(err.message);
@@ -43,7 +54,7 @@ exports.updateComment = ({ body }, res) => {
 exports.deleteComment = ({ params }, res) => {
     Comments.deleteOne({ _id: params.id })
         .then(() => {
-            res.json({message:'deleted'});
+            res.json({ message: 'deleted' });
         })
         .catch((err) => {
             res.send(err.message);
