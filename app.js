@@ -3,7 +3,7 @@ const comments = require("./routes/comments");
 const ratings = require("./routes/ratings");
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-var cors = require('cors');
+const cors = require('cors');
 
 const port = 3000;
 const app = express();

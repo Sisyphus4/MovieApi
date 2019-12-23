@@ -4,7 +4,7 @@ exports.getComments = ({ params }, res) => {
     Comments.find({ movieId: params.movieId })
         .then(comments => {
             if (!comments && !comments.length) throw new Error('Something went wrong!');
-            var response = comments.map(({ _id: id, movieId, text, author, createdAt, updatedAt }) => ({
+            let response = comments.map(({ _id: id, movieId, text, author, createdAt, updatedAt }) => ({
                 id,
                 movieId,
                 text,
@@ -26,7 +26,7 @@ exports.postComment = ({ params, body }, res) => {
     newComment
         .save()
         .then(createdComment => {
-            str = JSON.stringify(createdComment);
+            let str = JSON.stringify(createdComment);
             str = str.replace("\"_id\":", "\"id\":");
             json = JSON.parse(str);
             res.json(json);
@@ -40,7 +40,7 @@ exports.updateComment = ({ body }, res) => {
         .then(() => {
             Comments.findOne({ _id: body.id })
                 .then(comment => {
-                    str = JSON.stringify(comment);
+                    let str = JSON.stringify(comment);
                     str = str.replace("\"_id\":", "\"id\":");
                     json = JSON.parse(str);
                     res.json(json);
