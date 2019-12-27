@@ -4,14 +4,7 @@ exports.getComments = ({ params }, res) => {
     Comments.find({ movieId: params.movieId })
         .then(comments => {
             if (!comments && !comments.length) throw new Error('Something went wrong!');
-            let response = comments.map(({ _id: id, movieId, text, author, createdAt, updatedAt }) => ({
-                id,
-                movieId,
-                text,
-                author,
-                createdAt,
-                updatedAt
-            }));
+            let response = comments.map(comment => comment.toObject());
             res.send(response);
         })
         .catch(err => {
@@ -19,10 +12,12 @@ exports.getComments = ({ params }, res) => {
         });
 };
 
-exports.postComment = ({ params, body }, res) => {
-    const { text, author } = body;
-    const movieId = params.id;
-    const newComment = new Comments({ movieId, text, author });
+exports.postComment = ({ params, body, user }, res) => {
+    const { text } = body;
+    const movieId = params.movieId;
+    const author = user.username;
+    const userId = user._id;
+    const newComment = new Comments({ movieId, userId, text, author });
     newComment
         .save()
         .then(createdComment => {
@@ -32,31 +27,50 @@ exports.postComment = ({ params, body }, res) => {
             res.json(json);
         })
         .catch(({ message }) => res.status(404).json({ message }));
-
 };
 
-exports.updateComment = ({ body }, res) => {
-    Comments.updateOne({ _id: body.id }, { text: body.text })
-        .then(() => {
-            Comments.findOne({ _id: body.id })
-                .then(comment => {
-                    let str = JSON.stringify(comment);
-                    str = str.replace("\"_id\":", "\"id\":");
-                    json = JSON.parse(str);
-                    res.json(json);
-                });
-        })
-        .catch((err) => {
-            res.send(err.message);
+exports.updateComment = ({ body, params, user }, res) => {
+    //We have to find comment to check if it's the right user
+    Comments.findOne({ _id: params.id })
+        .then(comment => {
+            if (comment.userId == user._id) {
+                Comments.updateOne({ _id: params.id }, { text: body.text })
+                    .then(() => {
+                        Comments.findOne({ _id: params.id })
+                            .then(({ _id: id, movieId, userId, text, author, createdAt, updatedAt }) => res.json({
+                                id,
+                                movieId,
+                                userId,
+                                text,
+                                author,
+                                createdAt,
+                                updatedAt
+                            }))
+                    })
+                    .catch((err) => {
+                        res.send(err.message);
+                    });
+            }
+            else {
+                res.send("it's not your comment!")
+            }
         });
 };
 
-exports.deleteComment = ({ params }, res) => {
-    Comments.deleteOne({ _id: params.id })
-        .then(() => {
-            res.json({ message: 'deleted' });
-        })
-        .catch((err) => {
-            res.send(err.message);
+exports.deleteComment = ({ params, user }, res, ) => {
+    Comments.findOne({ _id: params.id })
+        .then(comment => {
+            if (comment.userId == user._id) {
+                Comments.deleteOne({ _id: params.id })
+                    .then(() => {
+                        res.json({ message: 'deleted' });
+                    })
+                    .catch((err) => {
+                        res.send(err.message);
+                    });
+            }
+            else {
+                res.send("it's not your comment!")
+            }
         });
 };

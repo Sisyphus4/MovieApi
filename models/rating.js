@@ -12,7 +12,6 @@ const RatingSchema = new Schema({
   voteCount: Number,
 });
 
-
 const Ratings = mongoose.model('Ratings', RatingSchema);
 
 module.exports = Ratings;

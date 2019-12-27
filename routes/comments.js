@@ -1,14 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const comments = require('../controllers/comments');
+const passport = require('passport');
 
+let auth = passport.authenticate('jwt', {
+  session: false
+});
 
-router.get('/:movieId/getComments', comments.getComments);
+router.get('/:movieId', comments.getComments);
 
-router.post('/:id/postComment', comments.postComment);
+router.post('/:movieId', auth, comments.postComment);
 
-router.put('/updateComment', comments.updateComment);
+router.put('/:id', auth, comments.updateComment);
 
-router.delete('/deleteComment/:id', comments.deleteComment);
+router.delete('/:id', auth, comments.deleteComment);
 
 module.exports = router;
