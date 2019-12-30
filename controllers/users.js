@@ -1,7 +1,6 @@
 const Users = require("../models/users");
 const bCrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const keys = require("../config/keys");
 
 
 exports.registerUser = ({ body }, res) => {
@@ -12,7 +11,7 @@ exports.registerUser = ({ body }, res) => {
             if (user) {
                 res
                     .status(400)
-                    .json({ message: "User with this username already exists." });
+                    .json({ error: "User with this username already exists." });
             } else {
                 const newUser = new Users({ username, password, ratedMovies });
                 bCrypt.genSalt(10, (error, salt) => {
@@ -21,8 +20,25 @@ exports.registerUser = ({ body }, res) => {
                         newUser.password = hash;
                         newUser
                             .save()
-                            .then(() => res.json({ message: `User ${username} created` }))
-                            .catch(({ message }) => res.status(404).json({ message }));
+                            .then(crearedUser => {
+                                const payload = { id: crearedUser._id, username: crearedUser.username };
+                                jwt.sign(
+                                    payload,
+                                    process.env.SECRET,
+                                    { expiresIn: 3600 },
+                                    (err, token) => {
+                                        res.json({
+                                            user: {
+                                                username: crearedUser.username,
+                                                userId: crearedUser._id,
+                                                ratedMovies: crearedUser.ratedMovies,
+                                            },
+                                            token: token,
+                                        });
+                                    }
+                                );
+                            })
+                            .catch(err => res.status(404).json({ message }));
                     });
                 });
             }
@@ -45,14 +61,16 @@ exports.loginUser = ({ body }, res) => {
 
                 jwt.sign(
                     payload,
-                    keys.secretOrKey,
+                    process.env.SECRET,
                     { expiresIn: 3600 },
                     (err, token) => {
                         res.json({
-                            username: user.username,
-                            userId: user._id,
+                            user: {
+                                username: user.username,
+                                userId: user._id,
+                                ratedMovies: user.ratedMovies,
+                            },
                             token: token,
-                            ratedMovies: user.ratedMovies,
                         });
                     }
                 );

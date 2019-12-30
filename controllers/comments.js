@@ -21,10 +21,7 @@ exports.postComment = ({ params, body, user }, res) => {
     newComment
         .save()
         .then(createdComment => {
-            let str = JSON.stringify(createdComment);
-            str = str.replace("\"_id\":", "\"id\":");
-            json = JSON.parse(str);
-            res.json(json);
+            res.json(createdComment.toObject());
         })
         .catch(({ message }) => res.status(404).json({ message }));
 };
@@ -37,15 +34,7 @@ exports.updateComment = ({ body, params, user }, res) => {
                 Comments.updateOne({ _id: params.id }, { text: body.text })
                     .then(() => {
                         Comments.findOne({ _id: params.id })
-                            .then(({ _id: id, movieId, userId, text, author, createdAt, updatedAt }) => res.json({
-                                id,
-                                movieId,
-                                userId,
-                                text,
-                                author,
-                                createdAt,
-                                updatedAt
-                            }))
+                            .then(updatedComment=>res.json(updatedComment.toObject()))
                     })
                     .catch((err) => {
                         res.send(err.message);
