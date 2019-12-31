@@ -3,6 +3,7 @@ const express = require('express');
 const comments = require("./routes/comments");
 const ratings = require("./routes/ratings");
 const users = require("./routes/users");
+const userRating = require("./routes/userRating");
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -44,6 +45,7 @@ app.use(express.json({limit: '300kb'}));
 app.use('/api/comments', comments);
 app.use('/api/ratings', ratings);
 app.use('/api/users', users);
+app.use('/api/userRating', userRating);
 
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
