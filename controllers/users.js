@@ -11,7 +11,7 @@ exports.registerUser = ({ body }, res) => {
             if (user) {
                 res
                     .status(400)
-                    .json({ error: "User with this username already exists." });
+                    .json({ message: "User with this username already exists." });
             } else {
                 const newUser = new Users({ username, password, ratedMovies });
                 bCrypt.genSalt(10, (error, salt) => {
@@ -48,37 +48,38 @@ exports.registerUser = ({ body }, res) => {
 
 exports.loginUser = ({ body }, res) => {
     let { username, password } = body;
-    Users.findOne({ username }).then((user, err) => {
-        if (err) {
-            res.json({ message: err.message });
-        }
-        if (!user) {
-            res.json({ message: "Wrong password or username" });
-        }
-        bCrypt.compare(password, user.password).then(isMatch => {
-            if (isMatch) {
-                const payload = { id: user._id, username: user.username };
-
-                jwt.sign(
-                    payload,
-                    process.env.SECRET,
-                    { expiresIn: 3600 },
-                    (err, token) => {
-                        res.json({
-                            user: {
-                                username: user.username,
-                                userId: user._id,
-                                ratedMovies: user.ratedMovies,
-                            },
-                            token: token,
-                        });
-                    }
-                );
-            } else {
+    Users.findOne({ username })
+        .then(user => {
+            if (!user) {
                 res.status(400).json({ message: "Wrong password or username" });
             }
-        });
-    });
+            bCrypt.compare(password, user.password).then(isMatch => {
+                if (isMatch) {
+                    const payload = { id: user._id, username: user.username };
+
+                    jwt.sign(
+                        payload,
+                        process.env.SECRET,
+                        { expiresIn: 3600 },
+                        (err, token) => {
+                            res.json({
+                                user: {
+                                    username: user.username,
+                                    userId: user._id,
+                                    ratedMovies: user.ratedMovies,
+                                },
+                                token: token,
+                            });
+                        }
+                    );
+                } else {
+                    res.status(400).json({ message: "Wrong password or username" });
+                }
+            });
+        })
+        .catch(err => {
+            res.status(400).json({ message: "Wrong password or username" });
+        })
 };
 
 exports.getUser = ({ user }, res) => {
